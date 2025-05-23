@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Episode Summary</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="episode-detail" id="episode-container">
+      <!-- Content gets injected here -->
+    </section>
+  </main>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const episodeId = params.get("id");
+    
+      fetch('rotten_mango.json')
+        .then(res => res.json())
+        .then(episodes => {
+          const episode = episodes.find(ep => ep.videoId === episodeId);
+          const container = document.getElementById("episode-container");
+    
+          if (episode) {
+            container.innerHTML = `
+              <h1>${episode.title}</h1>
+              <img src="${episode.thumbnail}" alt="${episode.title}" class="thumbnail"/>
+              
+              <p><strong>Published:</strong> ${new Date(episode.publishedAt).toLocaleDateString()}</p>
+
+              <h3>🎧 Description</h3>
+              <p>${episode.description || "No description available."}</p>
+
+
+              <h3>📝 Summary</h3>
+              <div class="summary">
+                ${(episode.summary || "Summary not available.")
+                  .split(/\n{2,}/) // split into paragraphs
+                  .map(paragraph => `<p>${paragraph.trim()}</p>`)
+                  .join("")}
+              </div>
+
+              <a href="index.html">← Back to list</a>
+            `;
+          } else {
+            container.innerHTML = `<p>Episode not found.</p>`;
+          }
+        })
+        .catch(error => {
+          console.error("Failed to load episode:", error);
+          document.getElementById("episode-container").innerHTML = "<p>Error loading episode.</p>";
+        });
+    </script>
+  
+</body>
+</html>
